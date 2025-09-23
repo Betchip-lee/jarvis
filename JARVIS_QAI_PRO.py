@@ -2,6 +2,14 @@
 import os, time, sqlite3, random, datetime as dt, traceback, re, math, statistics
 from collections import deque, defaultdict
 
+# Import MT5 integration
+try:
+    from mt5_integration import get_mt5_manager, ensure_mt5_connection
+    MT5_AVAILABLE = True
+except ImportError:
+    print("Warning: MT5 integration not available. Install MetaTrader5 package.")
+    MT5_AVAILABLE = False
+
 # ============== ENV ==============
 SQLITE_DB_PATH=os.getenv("SQLITE_DB_PATH","jarvis_qai_pro.db")
 LOG_LEVEL=os.getenv("LOG_LEVEL","INFO")
@@ -20,6 +28,19 @@ ENABLE_GHOST=1 if os.getenv("ENABLE_GHOST","1")=="1" else 0
 GHOST_RATIO=float(os.getenv("GHOST_RATIO","3.0"))  # ghost scans per 1 live attempt
 CONSOLE_WIDTH=int(os.getenv("CONSOLE_WIDTH","94"))
 STRICT_CRYPTO=1
+
+# Initialize MT5 connection at startup
+if MT5_AVAILABLE and MT5_LOGIN and MT5_PASSWORD:
+    print("Initializing MT5 connection...")
+    if ensure_mt5_connection():
+        print(f"✓ Connected to MT5 - Server: {MT5_SERVER}")
+        mt5_manager = get_mt5_manager()
+        account_info = mt5_manager.get_account_info()
+        if account_info:
+            print(f"✓ Account: {account_info['login']} | Balance: {account_info['balance']} {account_info['currency']}")
+    else:
+        print("✗ Failed to connect to MT5")
+        MT5_AVAILABLE = False
 
 # ============== Colors (terminal) ==============
 try:
