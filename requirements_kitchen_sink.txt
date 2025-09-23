@@ -1,0 +1,10 @@
+flask
+numpy
+requests
+duckdb
+prefect
+mlflow
+pandas
+stable-baselines3
+gymnasium
+scikit-learn
